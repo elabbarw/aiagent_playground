@@ -1,0 +1,23 @@
+services:
+  pipelines:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: pipelines
+    volumes:
+      - pipelines-data:/app/pipelines
+    ports:
+      - 9099:9099
+    environment:
+      - PIPELINES_API_KEY=${PIPELINES_API_KEY}
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    restart: unless-stopped
+    networks:
+      - webui-network
+
+volumes:
+  pipelines-data:
+
+networks:
+  webui-network:
