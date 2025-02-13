@@ -137,11 +137,6 @@ class Action:
             if negmatch:
                 negmatch_string = negmatch.group(1).strip()
 
-            # Regular expression to capture text after 'STYLE:' (if any)
-            stylematch = re.search(r"(?i)style:?\s*(.*)", prompt)
-            stylematch_string = None
-            if stylematch:
-                stylematch_string = negmatch.group(1).strip()
 
             headers = {
                 "X-API-KEY": self.valves.LITELLM_API_KEY,
@@ -151,7 +146,6 @@ class Action:
             if "sdxl" in modelchoice:
                 payload =  {
                     "prompt": str(prompt),
-                    "style_preset": str(stylematch_string),
                     "cfg_scale": 7,
                     "height": 1024,
                     "width": 1024,
@@ -167,8 +161,7 @@ class Action:
                     "mode": "text-to-image",
                     "model": str(modelchoice),
                     "aspect_ratio": "1:1",
-                    "response_format": "b64_json",
-                    "style_preset": str(stylematch_string),
+                    "response_format": "b64_json"
                 }
 
             payload.update(
