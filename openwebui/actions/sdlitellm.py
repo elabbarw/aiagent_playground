@@ -3,7 +3,7 @@ title: LiteLLM Stable Diffusion Image Generation Action
 author: Wanis Elabbar
 author_url: https://github.com/elabbarw
 date: 2025-02-12
-version: 0.1.1
+version: 0.1.2
 license: MIT
 description: This action generates an image using SD models deployed on AWS Bedrock and presented via LiteLLM.
 """
@@ -31,7 +31,7 @@ class Action:
             default="your_api_key_here", description="Required API key for LiteLLM"
         )
         LITELLM_IMAGE_URL: str = Field(
-            default="https://[your litellm gateway].com/image/generations",
+            default="https://[your litellm gateway].com/images/generations",
             description="LiteLLM Endpoint image generation",
         )
         pass
@@ -44,11 +44,11 @@ class Action:
 
         ### Put LiteLLM names here
         self.modelnames = {
-            "sdxl": "",
-            "core": "",
-            "large3": "",
-            "ultra": "",
-            "large35": "",
+            "sdxl": "eit_sdxl",
+            "core": "eit_sdcore",
+            "large3": "eit_sd3large",
+            "ultra": "eit_sdultra",
+            "large35": "eit_sd35large",
         }
         pass
 
@@ -96,7 +96,7 @@ class Action:
                     "type": "input",
                     "data": {
                         "title": "Enter the SD Model (sdxl, core, large3, ultra, large35)",
-                        "message": "$0.002, $0.03, $0.06, $0.08, $0.08",
+                        "message": "$0.04, $0.04, $0.08, $0.08, $0.14",
                         "placeholder": "Enter the model name",
                     },
                 }
@@ -129,6 +129,7 @@ class Action:
 
             last_message = body["messages"][-1]
             prompt = last_message["content"]
+            
 
             # Regular expression to capture text after 'NEGATIVE:' (if any)
             negmatch = re.search(r"(?i)negative:?\s*(.*)", prompt)
@@ -136,35 +137,58 @@ class Action:
             if negmatch:
                 negmatch_string = negmatch.group(1).strip()
 
+            # Regular expression to capture text after 'STYLE:' (if any)
+            stylematch = re.search(r"(?i)style:?\s*(.*)", prompt)
+            stylematch_string = None
+            if stylematch:
+                stylematch_string = negmatch.group(1).strip()
+
             headers = {
                 "X-API-KEY": self.valves.LITELLM_API_KEY,
                 "Content-Type": "application/json",
             }
-            payload = {
-                "prompt": prompt,
-                "negative_prompt": negmatch_string,
-                "mode": "text-to-image",
-                "model": modelchoice,
-                "aspect_ratio": "1:1",
-                "response_format": "b64_json",
-                "output_format": "jpeg",
-                "metadata": {
-                    "tags": [
-                        "openwebui",
-                        str(modelchoice),
-                        (
-                            __user__["email"]
-                            if __user__ and "email" in __user__
-                            else "unknown"
-                        ),
-                        (
-                            __user__["name"]
-                            if __user__ and "name" in __user__
-                            else "unknown"
-                        ),
-                    ]
-                },
-            }
+
+            if "sdxl" in modelchoice:
+                payload =  {
+                    "prompt": str(prompt),
+                    "style_preset": str(stylematch_string),
+                    "cfg_scale": 7,
+                    "height": 1024,
+                    "width": 1024,
+                    "samples": 1,
+                    "steps": 30,
+                    "response_format": "b64_json",
+                    "model": str(modelchoice)
+                }
+            else:
+                payload = {
+                    "prompt": str(prompt),
+                    "negative_prompt": str(negmatch_string),
+                    "mode": "text-to-image",
+                    "model": str(modelchoice),
+                    "aspect_ratio": "1:1",
+                    "response_format": "b64_json",
+                    "style_preset": str(stylematch_string),
+                }
+
+            payload.update(
+                {"metadata": {
+                        "tags": [
+                            "openwebui",
+                            str(modelchoice),
+                            (
+                                __user__["email"]
+                                if __user__ and "email" in __user__
+                                else "unknown"
+                            ),
+                            (
+                                __user__["name"]
+                                if __user__ and "name" in __user__
+                                else "unknown"
+                            ),
+                        ]
+                    }}
+                    )
 
             response = await asyncio.to_thread(
                 requests.post,
