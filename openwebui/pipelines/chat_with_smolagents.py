@@ -2,6 +2,7 @@
 title: Chat With SmolAgents Pipeline
 author: elabbarw
 author_url: https://github.com/elabbarw
+git_url: https://github.com/elabbarw/aiagent_playground/blob/main/openwebui/pipelines/chat_with_smolagents.py
 date: 2024-02-11
 version: 0.1.0
 license: MIT
