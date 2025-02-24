@@ -2,6 +2,7 @@
 title: LiteLLM Stable Diffusion Image Generation Action
 author: Wanis Elabbar
 author_url: https://github.com/elabbarw
+git_url: https://github.com/elabbarw/aiagent_playground/blob/main/openwebui/actions/sdlitellm.py
 date: 2025-02-12
 version: 0.1.2
 license: MIT
