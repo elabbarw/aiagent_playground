@@ -3,6 +3,7 @@ title: SmolAgents Deep Research Pipeline
 author: elabbarw, aymeric-roucher & albertvillanova
 author_url: https://github.com/elabbarw
 original_author_url: https://github.com/huggingface/smolagents
+git_url: https://github.com/elabbarw/aiagent_playground/blob/main/openwebui/pipelines/deepresearch/smolagent_deepresearch.py
 date: 2024-02-11
 version: 0.1.0
 license: MIT
